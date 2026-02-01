@@ -53,7 +53,7 @@
                     <img src="logo.png" alt="Logo" class="w-12 h-12 object-contain">
                     <div>
                         <h1 class="text-2xl font-black text-[#00305d] uppercase tracking-tight">Material-Viewer</h1>
-                        <p class="text-slate-600 font-medium">Wähle die Datei <span class="font-mono text-blue-700">Material.xlsx</span> aus.</p>
+                        <p id="file_status" class="text-slate-600 font-medium">Wähle die Datei <span class="font-mono text-blue-700">Material.xlsx</span> aus.</p>
                     </div>
                 </div>
                 <button id="btn_reset" class="hidden text-xs bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors font-bold shadow-sm">
@@ -88,11 +88,19 @@
 
         window.onload = function() {
             const cachedData = localStorage.getItem('materialData');
+            const cachedFileName = localStorage.getItem('materialFileName');
+            
             if (cachedData) {
                 try {
                     allData = JSON.parse(cachedData);
                     initInterface();
                     renderCards(allData);
+                    
+                    // Update Status-Text mit dem gespeicherten Dateinamen
+                    if (cachedFileName) {
+                        document.getElementById('file_status').innerHTML = `Geladene Datei: <span class="font-mono text-blue-700">${cachedFileName}</span>`;
+                        document.getElementById('storage_info').classList.remove('hidden');
+                    }
                 } catch (e) {
                     console.error("Fehler beim Laden des Speichers", e);
                 }
@@ -122,6 +130,7 @@
         document.getElementById('btn_reset').addEventListener('click', function() {
             if(confirm("Möchtest du die gespeicherten Daten wirklich löschen?")) {
                 localStorage.removeItem('materialData');
+                localStorage.removeItem('materialFileName');
                 location.reload();
             }
         });
@@ -131,6 +140,7 @@
             const errorDiv = document.getElementById('error_msg');
             errorDiv.classList.add('hidden');
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -139,14 +149,22 @@
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    
                     if (rows.length < 2) {
                         errorDiv.textContent = "Die Datei scheint leer zu sein.";
                         errorDiv.classList.remove('hidden');
                         return;
                     }
+                    
                     allData = rows.slice(1).filter(row => row.length > 0);
+                    
+                    // Speichern von Daten UND Dateiname
                     localStorage.setItem('materialData', JSON.stringify(allData));
+                    localStorage.setItem('materialFileName', file.name);
+                    
+                    document.getElementById('file_status').innerHTML = `Geladene Datei: <span class="font-mono text-blue-700">${file.name}</span>`;
                     document.getElementById('storage_info').classList.add('hidden');
+                    
                     initInterface();
                     renderCards(allData);
                 } catch (err) {
