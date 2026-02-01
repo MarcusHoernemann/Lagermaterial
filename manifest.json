@@ -1,0 +1,21 @@
+{
+  "name": "Ruhrbahn Material-Viewer",
+  "short_name": "LagerApp",
+  "description": "Materialliste Browser-Viewer im Ruhrbahn Design",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#00305d",
+  "theme_color": "#00305d",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
