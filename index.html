@@ -53,7 +53,7 @@
                     <img src="logo.png" alt="Logo" class="w-12 h-12 object-contain">
                     <div>
                         <h1 class="text-2xl font-black text-[#00305d] uppercase tracking-tight">Material-Viewer</h1>
-                        <p id="file_status" class="text-slate-600 font-medium">Wähle die Datei <span class="font-mono text-blue-700">Material.xlsx</span> aus.</p>
+                        <p id="file_status" class="text-slate-600 font-medium">Bereit zum Einlesen der <span class="font-mono text-blue-700">Material.xlsx</span></p>
                     </div>
                 </div>
                 <button id="btn_reset" class="hidden text-xs bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors font-bold shadow-sm">
@@ -62,7 +62,12 @@
             </div>
             
             <div class="flex flex-col md:flex-row gap-4 items-center">
-                <input type="file" id="input_file" class="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[#00305d] file:text-white hover:file:bg-[#004b91] cursor-pointer" accept=".xlsx, .xls" />
+                <div class="w-full md:w-auto">
+                    <label for="input_file" class="block w-full text-center md:inline-block bg-[#00305d] text-white px-6 py-2 rounded-full font-bold hover:bg-[#004b91] cursor-pointer transition-colors shadow-md">
+                        Datei wählen
+                    </label>
+                    <input type="file" id="input_file" class="hidden" accept=".xlsx, .xls" />
+                </div>
                 
                 <input type="text" id="search_input" placeholder="Suchen..." class="hidden w-full md:w-64 px-4 py-2 bg-white border-2 border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#00305d] focus:outline-none placeholder-slate-400" />
                 
@@ -76,7 +81,7 @@
 
         <div id="info_bar" class="mb-4 text-white px-2 hidden flex justify-between items-center font-bold">
             <span id="item_count"></span>
-            <span id="storage_info" class="text-xs bg-yellow-400 text-[#00305d] px-2 py-1 rounded shadow-sm hidden">Lokal gespeichert</span>
+            <span id="storage_info" class="text-xs bg-yellow-400 text-[#00305d] px-2 py-1 rounded shadow-sm hidden">Daten aus Speicher geladen</span>
         </div>
 
         <div id="card_container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -96,9 +101,9 @@
                     initInterface();
                     renderCards(allData);
                     
-                    // Update Status-Text mit dem gespeicherten Dateinamen
+                    // Hier fixen wir die Anzeige beim Neustart
                     if (cachedFileName) {
-                        document.getElementById('file_status').innerHTML = `Geladene Datei: <span class="font-mono text-blue-700">${cachedFileName}</span>`;
+                        document.getElementById('file_status').innerHTML = `Aktiv: <span class="font-mono text-blue-700">${cachedFileName}</span>`;
                         document.getElementById('storage_info').classList.remove('hidden');
                     }
                 } catch (e) {
@@ -158,11 +163,10 @@
                     
                     allData = rows.slice(1).filter(row => row.length > 0);
                     
-                    // Speichern von Daten UND Dateiname
                     localStorage.setItem('materialData', JSON.stringify(allData));
                     localStorage.setItem('materialFileName', file.name);
                     
-                    document.getElementById('file_status').innerHTML = `Geladene Datei: <span class="font-mono text-blue-700">${file.name}</span>`;
+                    document.getElementById('file_status').innerHTML = `Aktiv: <span class="font-mono text-blue-700">${file.name}</span>`;
                     document.getElementById('storage_info').classList.add('hidden');
                     
                     initInterface();
