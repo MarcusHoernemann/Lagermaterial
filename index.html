@@ -3,263 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materiallager</title>
-    
+    <title>📦 Materiallager</title>
     <style>
         :root {
-            --primary: #0f172a; /* Schiefergrau dunkel */
-            --secondary: #334155;
-            --accent: #3b82f6; /* Blau */
-            --bg: #f8fafc;
-            --text: #1e293b;
+            --primary: #1a1a24;
+            --secondary: #2a2a36;
+            --accent: #0ea5e9;
+            --bg: #121218;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --input-bg: #1e1e28;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #ffcc00;
         }
         body { 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            font-family: system-ui, -apple-system, sans-serif; 
             margin: 0; 
             padding: 0; 
             background: var(--bg); 
             color: var(--text); 
-            -webkit-font-smoothing: antialiased;
         }
         header { 
             background: var(--primary); 
-            color: white; 
-            padding: 1.5rem 1rem; 
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1rem; 
+            text-align: center; 
+            border-bottom: 1px solid var(--border);
         }
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
-        }
+        h1, h2, h3 { margin-top: 0; }
+        
         nav { 
             display: flex; 
-            background: var(--secondary); 
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: var(--primary); 
+            border-bottom: 1px solid var(--border);
         }
         nav button { 
             flex: 1; 
             padding: 1rem; 
             border: none; 
             background: none; 
-            color: #cbd5e1; 
+            color: var(--text-muted); 
             cursor: pointer; 
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 1rem; 
             transition: all 0.2s;
         }
-        nav button:hover {
-            color: white;
-            background: rgba(255,255,255,0.05);
-        }
         nav button.active { 
-            background: var(--primary); 
-            color: white;
-            font-weight: 600; 
-            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            font-weight: bold; 
         }
         .container { 
-            padding: 1.5rem 1rem; 
+            padding: 1rem; 
             max-width: 800px; 
             margin: auto; 
         }
-        .view { 
-            display: none; 
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .view.active { 
-            display: block; 
-        }
+        .view { display: none; }
+        .view.active { display: block; }
+        
         .card { 
-            background: white; 
-            padding: 1.5rem; 
-            border-radius: 12px; 
+            background: var(--secondary); 
+            padding: 1rem; 
+            border-radius: 8px; 
             margin-bottom: 1rem; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
         }
         input, select, textarea { 
             width: 100%; 
-            padding: 0.8rem 1rem; 
+            padding: 0.8rem; 
             margin-bottom: 1rem; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            border-radius: 4px; 
             box-sizing: border-box; 
             font-size: 1rem; 
-            background-color: #f8fafc;
-            transition: border-color 0.2s;
-            font-family: inherit;
+            background: var(--input-bg);
+            color: var(--text);
         }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            background-color: white;
-        }
-        button.primary { 
-            width: 100%;
-            background: var(--accent); 
-            color: white; 
-            border: none; 
-            padding: 1rem;
-            border-radius: 8px;
-            font-weight: 600; 
+        button {
+            width: 100%; 
+            padding: 0.8rem; 
+            border-radius: 4px;
             font-size: 1rem;
-            cursor: pointer; 
-            transition: background 0.2s;
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+            cursor: pointer;
+            border: none;
+            color: white;
+            transition: 0.2s;
         }
-        button.primary:hover { 
-            background: #2563eb; 
-        }
+        button.primary { background: var(--accent); font-weight: bold; }
+        button.primary:hover { background: #0284c7; }
+        button.danger { background: var(--danger); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .item-card { 
-            background: white; 
-            padding: 1.2rem; 
-            border-radius: 12px; 
+            background: var(--secondary); 
+            border-radius: 8px; 
             margin-bottom: 1rem; 
-            border-left: 5px solid var(--accent); 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            border-top: 1px solid #e2e8f0;
-            border-right: 1px solid #e2e8f0;
-            border-bottom: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-        }
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        .item-title { 
-            font-weight: 700; 
-            font-size: 1.1rem; 
-            color: var(--primary);
-        }
-        .item-detail { 
-            font-size: 0.9rem; 
-            color: #64748b; 
-            line-height: 1.4;
-        }
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.2rem;
-        }
-        .badge { 
-            display: inline-flex;
-            align-items: center;
-            background: #f1f5f9; 
-            color: #475569;
-            padding: 0.25rem 0.6rem; 
-            border-radius: 6px; 
-            font-size: 0.8rem; 
-            font-weight: 500;
-        }
-        .badge.amount {
-            background: var(--accent);
-            color: white;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-        .search-area {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        @media (max-width: 600px) {
-            .search-area { grid-template-columns: 1fr; gap: 0; }
-        }
-        .image-upload-container {
-            margin-bottom: 1rem;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            background-color: #f8fafc;
-            transition: border-color 0.2s;
-        }
-        .image-upload-container:hover {
-            border-color: var(--accent);
-        }
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 4px;
-            display: none;
-            margin: 0.5rem auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .item-image {
             width: 100%;
             height: 150px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            background-color: #f1f5f9;
+            background: var(--primary);
+            display: none;
         }
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .item-content { padding: 1rem; }
+        .item-title { 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+            margin-bottom: 0.5rem; 
         }
-        .toast {
-            background-color: #1e293b;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            font-size: 0.95rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .toast.error {
-            background-color: #ef4444;
-        }
-        .toast.success {
-            background-color: #10b981;
-        }
-        .baugruppen-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
+        .item-detail { 
+            font-size: 0.9rem; 
+            color: var(--text-muted); 
             margin-bottom: 0.5rem;
         }
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 0.4rem 0.8rem;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: background 0.2s;
+        
+        .badge { 
+            display: inline-block; 
+            padding: 0.2rem 0.5rem; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+            margin-right: 0.5rem; 
+            margin-bottom: 0.5rem;
+            font-weight: bold;
         }
-        .btn-delete:hover {
-            background: #dc2626;
+        .badge-mat { background: #334155; color: #cbd5e1; }
+        .badge-bg { background: var(--warning); color: #000; }
+        .badge-amount { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+        
+        .search-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 600px) {
+            .search-area { grid-template-columns: 1fr; gap: 0; }
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .action-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border);
+            justify-content: flex-end;
+        }
+        .action-row button {
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            width: auto;
+            border-radius: 20px;
+        }
+        .btn-edit { background: #475569; }
+        .btn-delete { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 1rem;
+        }
+        .modal {
+            background: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 100%; max-width: 400px;
+            border: 1px solid var(--border);
+        }
+        
+        /* Setup Code Styling */
+        .code-display {
+            font-size: 2rem;
+            letter-spacing: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            color: var(--accent);
+            background: var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: white; padding: 0.8rem 1.5rem;
+            border-radius: 30px; font-weight: bold; display: none; z-index: 2000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -267,102 +206,103 @@
     <header>
         <h1>📦 Materiallager</h1>
     </header>
-    
     <nav>
         <button id="nav-list" class="active" onclick="switchView('list')">Bestand</button>
         <button id="nav-add" onclick="switchView('add')">Neu erfassen</button>
-        <button id="nav-setup" onclick="switchView('setup')">Einstellungen</button>
+        <button id="nav-cloud" onclick="switchView('cloud')">Einstellungen</button>
     </nav>
 
     <div class="container">
         <!-- LAGERBESTAND VIEW -->
         <div id="view-list" class="view active">
             <div class="search-area">
-                <input type="text" id="searchInput" placeholder="Suche nach Material, Baugruppe...">
+                <input type="text" id="searchInput" placeholder="Suche (Material, Mat. Nr., Baugruppe)...">
                 <select id="filterBaugruppe">
                     <option value="">Alle Baugruppen</option>
                 </select>
             </div>
             <div id="inventoryList">
-                <div style="text-align: center; padding: 2rem; color: #64748b;">
-                    Daten werden geladen...
-                </div>
+                <p>Lade Daten...</p>
             </div>
         </div>
 
         <!-- HINZUFÜGEN VIEW -->
         <div id="view-add" class="view">
             <div class="card">
-                <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Neues Material erfassen</h2>
+                <h2>Neues Material erfassen</h2>
+                <input type="text" id="inputMaterial" placeholder="Material (z.B. M8 Schraube)" required>
+                <input type="text" id="inputMatNum" placeholder="Materialnummer (z.B. 100234)" required>
+                <textarea id="inputDesc" placeholder="Beschreibung (Optional)" rows="2"></textarea>
                 
-                <input type="text" id="inputMaterial" placeholder="Material (z.B. M8 Schraube) *" required>
-                <input type="text" id="inputMatNum" placeholder="Materialnummer *" required>
                 <select id="inputBaugruppe" required>
-                    <option value="">Baugruppe wählen *</option>
+                    <option value="" disabled selected>Baugruppe auswählen...</option>
                 </select>
-                <input type="number" id="inputAmount" placeholder="Benötigte / Vorhandene Anzahl *" required>
-                <textarea id="inputDesc" placeholder="Besonderheiten, Lagerort, Lieferant..." rows="3"></textarea>
                 
-                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: block;">Bild (Optional)</label>
-                <div class="image-upload-container">
+                <input type="number" id="inputAmount" placeholder="Benötigte Anzahl (Optional)">
+                
+                <div class="card" style="background: var(--primary); padding: 0.5rem; margin-bottom: 1rem;">
                     <input type="file" id="inputImage" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
-                    <button class="primary" style="background: var(--secondary); margin-bottom: 0;" onclick="document.getElementById('inputImage').click()">
+                    <button class="primary" style="background: var(--border); margin-bottom: 0.5rem;" onclick="document.getElementById('inputImage').click()">
                         📷 Foto aufnehmen / auswählen
                     </button>
                     <img id="imagePreview" class="image-preview" alt="Vorschau">
-                    <p id="imageStatus" style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; display: none;">Bild wird komprimiert...</p>
+                    <p id="imageStatus" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; display: none;">Bild wird verarbeitet...</p>
                 </div>
                 
-                <button class="primary" onclick="saveItem()">Bauteil speichern</button>
+                <button id="btnSaveItem" class="primary" onclick="saveItem()">Bauteil speichern</button>
             </div>
         </div>
 
-        <!-- SETUP VIEW (ehemals Cloud) -->
-        <div id="view-setup" class="view">
-            <!-- CLOUD VERBINDUNG -->
-            <div class="card" style="border: 2px solid #e2e8f0; background: #f8fafc; margin-bottom: 1.5rem;">
-                <h2 style="margin-top: 0; color: var(--primary);">☁️ Cloud-Verbindung</h2>
+        <!-- EINSTELLUNGEN VIEW -->
+        <div id="view-cloud" class="view">
+            <div class="card">
+                <h2>Lager-Verbindung</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Dein aktueller Lager-Code. Gib diesen Code auf anderen Geräten ein, um sie zu verbinden.</p>
+                <div id="displayCloudCode" class="code-display">------</div>
                 
-                <div style="background: white; padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem; border: 1px solid #cbd5e1; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                    <p style="margin: 0; font-size: 0.95rem; color: #64748b; font-weight: 500;">Dein aktueller Lager-Code:</p>
-                    <div style="font-size: 2.5rem; font-weight: 900; color: var(--accent); letter-spacing: 6px; margin: 0.5rem 0; font-family: monospace;" id="displayCurrentCode">------</div>
-                    <p style="margin: 0; font-size: 0.85rem; color: #64748b;">Gib diesen Code auf anderen Geräten ein, um sie mit diesem Lager zu verbinden.</p>
-                </div>
-                
-                <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 1.5rem 0;">
-                
-                <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0.8rem; font-weight: 600;">Mit einem anderen Lager verbinden:</p>
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 0;">
-                    <input type="text" id="inputCloudCode" placeholder="Code eingeben" maxlength="6" style="margin-bottom: 0; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; text-align: center;">
-                    <button class="primary" style="width: auto; margin-bottom: 0; padding: 0.8rem 1.5rem;" onclick="saveCloudCode()">Wechseln</button>
+                <div style="border-top: 1px solid var(--border); margin-top: 1.5rem; padding-top: 1rem;">
+                    <h3>Mit anderem Lager verbinden</h3>
+                    <input type="text" id="inputJoinCode" placeholder="6-stelligen Code eingeben" maxlength="6" style="text-transform: uppercase;">
+                    <button class="primary" onclick="joinLager()">Lager wechseln</button>
                 </div>
             </div>
-
-            <!-- BAUGRUPPEN VERWALTUNG -->
-            <div class="card" id="baugruppenBox" style="border: 2px solid #e2e8f0; background: #f8fafc;">
-                <h2 style="margin-top: 0; color: var(--primary);">Baugruppen verwalten</h2>
-                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem;">
-                    Lege hier Kategorien an, die beim Erfassen von neuem Material im Dropdown zur Verfügung stehen.
-                </p>
+            
+            <div class="card">
+                <h2>Baugruppen verwalten</h2>
                 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                    <input type="text" id="inputNewBaugruppe" placeholder="Neue Baugruppe (z.B. Elektrik)" style="margin-bottom: 0;">
-                    <button class="primary" style="width: auto; margin-bottom: 0; padding: 0.8rem 1.5rem;" onclick="addBaugruppe()">Anlegen</button>
+                    <input type="text" id="inputNewBaugruppe" placeholder="Neue Baugruppe (z.B. Elektrik)" style="margin-bottom:0;">
+                    <button class="primary" style="width: auto;" onclick="addBaugruppe()">Hinzufügen</button>
                 </div>
-                <div id="baugruppenListContainer">
-                    <!-- Wird dynamisch gefüllt -->
-                </div>
+                <div id="baugruppenList"></div>
             </div>
         </div>
     </div>
-    
-    <!-- Container für Toast-Benachrichtigungen -->
-    <div id="toast-container"></div>
+
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal">
+            <h3 style="margin-top:0;">Bauteil bearbeiten</h3>
+            <input type="hidden" id="editId">
+            <input type="text" id="editMaterial" placeholder="Material">
+            <input type="text" id="editMatNum" placeholder="Materialnummer">
+            <select id="editBaugruppe"></select>
+            <input type="number" id="editAmount" placeholder="Anzahl">
+            <textarea id="editDesc" placeholder="Beschreibung" rows="2"></textarea>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button onclick="closeEditModal()" style="background: var(--border);">Abbrechen</button>
+                <button class="primary" onclick="saveEdit()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Nachricht</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Fest codierte Firebase Konfiguration
+        // Firebase Config (Ruhrbahnlager)
         const firebaseConfig = {
             apiKey: "AIzaSyBrfZ7suC_mFpQwCJgbZhBIPMX1j5Pn3j4",
             authDomain: "ruhrbahnlager.firebaseapp.com",
@@ -373,193 +313,138 @@
             measurementId: "G-F8KDDCRC1W"
         };
 
-        let db = null;
+        let db;
         let items = [];
-        let baugruppenData = [];
+        let baugruppen = [];
         let currentBase64Image = null;
-        
-        // --- NEU: Automatische Code-Generierung ---
-        function generateRandomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
+        let cloudCode = "";
 
-        let cloudCode = localStorage.getItem('cloudCode');
-        if (!cloudCode) {
-            cloudCode = generateRandomCode();
-            localStorage.setItem('cloudCode', cloudCode);
-        }
-        // ------------------------------------------
-
-        let unsubLager = null;
-        let unsubBaugruppen = null;
-
-        // Custom Alert Funktion (ersetzt window.alert)
-        window.showToast = function(message, type = 'normal') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerText = message;
-            
-            container.appendChild(toast);
-            
-            // Animation Trigger
-            setTimeout(() => toast.classList.add('show'), 10);
-            
-            // Entfernen nach 3 Sekunden
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        };
-
-        // Tab-Navigation
         window.switchView = function(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
             document.getElementById('nav-' + viewId).classList.add('active');
-            
-            if(viewId === 'list' && db && cloudCode.length === 6) renderList();
-            
-            // Code in den Einstellungen aktualisieren
-            if(viewId === 'setup') {
-                document.getElementById('displayCurrentCode').innerText = cloudCode;
-            }
         };
 
-        window.saveCloudCode = function() {
-            const code = document.getElementById('inputCloudCode').value.trim().toUpperCase();
-            if(code.length !== 6) {
-                showToast("Der Code muss exakt 6 Zeichen lang sein.", "error");
-                return;
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.background = isError ? "var(--danger)" : "var(--accent)";
+            t.style.display = "block";
+            setTimeout(() => { t.style.display = "none"; }, 3000);
+        }
+
+        // Setup Cloud Code Logic
+        function initCodeLogic() {
+            cloudCode = localStorage.getItem('lagerCloudCode');
+            if (!cloudCode) {
+                // Generate a random 6 character code if none exists
+                cloudCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                localStorage.setItem('lagerCloudCode', cloudCode);
             }
-            localStorage.setItem('cloudCode', code);
-            cloudCode = code;
-            
-            // UI zurücksetzen
-            document.getElementById('displayCurrentCode').innerText = cloudCode;
-            document.getElementById('inputCloudCode').value = '';
-            
-            showToast("Mit neuem Lager verbunden! Daten werden synchronisiert.", "success");
-            
-            if (unsubLager) unsubLager();
-            if (unsubBaugruppen) unsubBaugruppen();
-            
-            listenToBaugruppen();
-            listenToData();
-            
-            setTimeout(() => switchView('list'), 1500);
+            document.getElementById('displayCloudCode').innerText = cloudCode;
+        }
+
+        window.joinLager = function() {
+            const newCode = document.getElementById('inputJoinCode').value.trim().toUpperCase();
+            if (newCode.length === 6) {
+                localStorage.setItem('lagerCloudCode', newCode);
+                showToast("Lager gewechselt! Lade neu...");
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast("Code muss 6 Zeichen lang sein.", true);
+            }
         };
 
         function initFirebase() {
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
-                
-                // Da jetzt immer ein Code vorhanden ist, verbinden wir direkt
-                document.getElementById('displayCurrentCode').innerText = cloudCode;
                 listenToBaugruppen();
                 listenToData();
-                
             } catch (e) {
-                console.error("Fehler bei der Firebase-Initialisierung:", e);
-                showToast("Konnte nicht mit der Datenbank verbinden.", "error");
-                document.getElementById('inventoryList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Datenbank-Verbindungsfehler!</div>';
+                console.error("Firebase init fehler", e);
+                showToast("Datenbankfehler!", true);
             }
         }
 
+        // Baugruppen Logik
         function listenToBaugruppen() {
-            if (!db || cloudCode.length !== 6) return;
             const q = query(collection(db, "baugruppen_" + cloudCode), orderBy("name"));
-            unsubBaugruppen = onSnapshot(q, (snapshot) => {
-                baugruppenData = [];
-                snapshot.forEach((docSnap) => {
-                    baugruppenData.push({ id: docSnap.id, name: docSnap.data().name });
+            onSnapshot(q, (snapshot) => {
+                baugruppen = [];
+                snapshot.forEach(doc => {
+                    baugruppen.push({ id: doc.id, name: doc.data().name });
                 });
-                renderBaugruppenSetup();
+                renderBaugruppenAdmin();
                 updateBaugruppenDropdowns();
-            }, (error) => {
-                console.error("Fehler beim Laden der Baugruppen:", error);
             });
         }
 
-        window.addBaugruppe = async function() {
-            if (!db || cloudCode.length !== 6) {
-                showToast("Bitte zuerst Cloud-Code speichern.", "error");
-                return;
-            }
-            const input = document.getElementById('inputNewBaugruppe');
-            const name = input.value.trim();
+        window.addBaugruppe = function() {
+            const val = document.getElementById('inputNewBaugruppe').value.trim();
+            if (!val) return;
             
-            if (!name) {
-                showToast("Bitte einen Namen für die Baugruppe eingeben.", "error");
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, "baugruppen_" + cloudCode), { name: name });
-                input.value = '';
-                showToast("Baugruppe angelegt!", "success");
-            } catch (e) {
-                showToast("Fehler beim Anlegen.", "error");
-            }
+            // Im Hintergrund speichern
+            addDoc(collection(db, "baugruppen_" + cloudCode), { name: val }).catch(console.error);
+            
+            document.getElementById('inputNewBaugruppe').value = '';
+            showToast("Baugruppe hinzugefügt");
         };
 
-        window.deleteBaugruppe = async function(id) {
-            if (!db || cloudCode.length !== 6) return;
-            
-            // Elegante Bestätigungs-Logik ohne window.confirm Popups
-            const btn = document.querySelector(`button[onclick="deleteBaugruppe('${id}')"]`);
-            if (btn && btn.innerText === "Löschen") {
+        window.deleteBaugruppe = function(id, btn) {
+            if (btn.dataset.confirm !== "true") {
+                btn.dataset.confirm = "true";
                 btn.innerText = "Sicher?";
-                btn.style.background = "#b91c1c";
-                
-                // Setze nach 3 Sekunden zurück, falls nicht nochmal geklickt wurde
+                btn.style.background = "var(--danger)";
+                btn.style.color = "white";
                 setTimeout(() => {
-                    if (btn && btn.innerText === "Sicher?") {
-                        btn.innerText = "Löschen";
-                        btn.style.background = ""; // Zurück zum Default der CSS Klasse
-                    }
+                    btn.dataset.confirm = "false";
+                    btn.innerText = "Löschen";
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--danger)";
                 }, 3000);
                 return;
             }
             
-            try {
-                await deleteDoc(doc(db, "baugruppen_" + cloudCode, id));
-                showToast("Baugruppe gelöscht!", "success");
-            } catch (e) {
-                showToast("Fehler beim Löschen der Baugruppe.", "error");
-            }
+            // Im Hintergrund löschen
+            deleteDoc(doc(db, "baugruppen_" + cloudCode, id)).catch(console.error);
+            showToast("Gelöscht!");
         };
 
-        function listenToData() {
-            if (!db || cloudCode.length !== 6) return;
-            const q = query(collection(db, "lagerbestand_" + cloudCode), orderBy("materialnummer"));
-            
-            unsubLager = onSnapshot(q, (snapshot) => {
-                items = [];
-                
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    items.push({ id: docSnap.id, ...data });
-                });
-                
-                updateBaugruppenDropdowns();
-                renderList();
-            }, (error) => {
-                console.error("Firebase Fehler:", error);
-                document.getElementById('inventoryList').innerHTML = `
-                    <div class="card" style="text-align: center; color: #ef4444; border-color: #fecaca; background: #fef2f2;">
-                        <strong>Zugriffsfehler!</strong><br><br>
-                        Die Firebase-Datenbank verweigert den Zugriff.<br>
-                        Bitte prüfe die Firestore Security Rules (Regeln).
-                    </div>`;
+        function renderBaugruppenAdmin() {
+            const list = document.getElementById('baugruppenList');
+            list.innerHTML = '';
+            baugruppen.forEach(bg => {
+                const div = document.createElement('div');
+                div.style = "display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid var(--border);";
+                div.innerHTML = `
+                    <span>⚙️ ${bg.name}</span>
+                    <button class="btn-delete" style="width:auto; padding:0.2rem 0.5rem;" onclick="deleteBaugruppe('${bg.id}', this)">Löschen</button>
+                `;
+                list.appendChild(div);
             });
+        }
+
+        function updateBaugruppenDropdowns() {
+            const selectAdd = document.getElementById('inputBaugruppe');
+            const selectEdit = document.getElementById('editBaugruppe');
+            const selectFilter = document.getElementById('filterBaugruppe');
+            
+            const currentFilter = selectFilter.value;
+            
+            let opts = '<option value="" disabled selected>Bitte wählen...</option>';
+            let filterOpts = '<option value="">Alle Baugruppen</option>';
+            
+            baugruppen.forEach(bg => {
+                opts += `<option value="${bg.name}">${bg.name}</option>`;
+                filterOpts += `<option value="${bg.name}">${bg.name}</option>`;
+            });
+            
+            selectAdd.innerHTML = opts;
+            selectEdit.innerHTML = opts;
+            selectFilter.innerHTML = filterOpts;
+            selectFilter.value = currentFilter;
         }
 
         window.handleImageSelection = function(event) {
@@ -570,29 +455,24 @@
             const status = document.getElementById('imageStatus');
             
             status.style.display = 'block';
-            status.innerText = "Bild wird verarbeitet...";
-            
+            status.innerText = "Bild wird optimiert...";
+            status.style.color = "var(--text-muted)";
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Komprimierung mittels Canvas (Max Breite/Höhe: 600px)
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    const MAX_HEIGHT = 600;
                     let width = img.width;
                     let height = img.height;
+                    const MAX_SIZE = 600;
 
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
                     }
 
                     canvas.width = width;
@@ -600,15 +480,12 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Konvertieren in WebP oder JPEG mit 70% Qualität (spart immens Platz)
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    // Speichern im Speicher
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
                     currentBase64Image = compressedDataUrl;
                     
                     preview.src = compressedDataUrl;
                     preview.style.display = 'block';
-                    status.innerText = "✅ Bild komprimiert und bereit.";
+                    status.innerText = "✅ Bild bereit.";
                     status.style.color = "#10b981";
                 };
                 img.src = e.target.result;
@@ -616,134 +493,72 @@
             reader.readAsDataURL(file);
         };
 
-        window.saveItem = async function() {
-            if (!db) {
-                showToast("App ist nicht mit der Datenbank verbunden!", "error");
-                return;
-            }
-            if (cloudCode.length !== 6) {
-                showToast("Bitte zuerst Cloud-Code in den Einstellungen eingeben!", "error");
-                return;
-            }
-            
+        window.saveItem = function() {
             const material = document.getElementById('inputMaterial').value.trim();
             const matNum = document.getElementById('inputMatNum').value.trim();
             const desc = document.getElementById('inputDesc').value.trim();
-            const baugruppe = document.getElementById('inputBaugruppe').value.trim();
+            const baugruppe = document.getElementById('inputBaugruppe').value;
             const amount = document.getElementById('inputAmount').value.trim();
 
-            if (!material || !matNum || !baugruppe || amount === "") {
-                showToast("Bitte fülle alle Pflichtfelder (*) aus.", "error");
+            if (!material || !matNum || !baugruppe) {
+                showToast("Bitte alle Pflichtfelder (außer Anzahl) ausfüllen.", true);
                 return;
             }
 
-            const btn = document.querySelector('#view-add button');
-            const originalText = btn.innerText;
+            const btn = document.getElementById('btnSaveItem');
             btn.innerText = "Wird gespeichert...";
             btn.disabled = true;
 
-            try {
-                const docData = {
-                    material: material,
-                    materialnummer: matNum,
-                    beschreibung: desc,
-                    baugruppe: baugruppe,
-                    anzahl: Number(amount),
-                    erfasst_am: new Date().toISOString()
-                };
+            const docData = {
+                material: material,
+                materialnummer: matNum,
+                beschreibung: desc,
+                baugruppe: baugruppe,
+                anzahl: amount === "" ? 0 : Number(amount),
+                timestamp: Date.now()
+            };
 
-                // Wenn ein Bild ausgewählt wurde, hängen wir es an
-                if (currentBase64Image) {
-                    docData.bild = currentBase64Image;
-                }
-
-                await addDoc(collection(db, "lagerbestand_" + cloudCode), docData);
-                
-                // Formular leeren
-                document.getElementById('inputMaterial').value = '';
-                document.getElementById('inputMatNum').value = '';
-                document.getElementById('inputDesc').value = '';
-                document.getElementById('inputBaugruppe').value = '';
-                document.getElementById('inputAmount').value = '';
-                
-                // Bild Vorschau zurücksetzen
-                document.getElementById('inputImage').value = '';
-                document.getElementById('imagePreview').style.display = 'none';
-                document.getElementById('imageStatus').style.display = 'none';
-                currentBase64Image = null;
-                
-                showToast("✅ Bauteil erfolgreich gespeichert!", "success");
-                
-                setTimeout(() => switchView('list'), 1500);
-                
-            } catch (e) {
-                console.error(e);
-                showToast("Fehler beim Speichern in die Datenbank!", "error");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+            if (currentBase64Image) {
+                docData.bild = currentBase64Image;
             }
+
+            // Fire-and-Forget: Im Hintergrund hochladen, UI wird NICHT blockiert!
+            addDoc(collection(db, "lagerbestand_" + cloudCode), docData).catch(e => {
+                console.error("Speicherfehler:", e);
+            });
+            
+            // Formular SOFORT leeren
+            document.getElementById('inputMaterial').value = '';
+            document.getElementById('inputMatNum').value = '';
+            document.getElementById('inputDesc').value = '';
+            document.getElementById('inputBaugruppe').value = '';
+            document.getElementById('inputAmount').value = '';
+            
+            // Bild zurücksetzen
+            document.getElementById('inputImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imageStatus').style.display = 'none';
+            currentBase64Image = null;
+            
+            showToast("Bauteil gespeichert!");
+            
+            // Button SOFORT wieder freigeben
+            btn.innerText = "Bauteil speichern";
+            btn.disabled = false;
         };
 
-        function updateBaugruppenDropdowns() {
-            // 1. Dropdown in "Neu erfassen" aktualisieren
-            const selectAdd = document.getElementById('inputBaugruppe');
-            const currentAddVal = selectAdd.value;
-            
-            selectAdd.innerHTML = '<option value="">Baugruppe wählen *</option>';
-            baugruppenData.forEach(bg => {
-                const opt = document.createElement('option');
-                opt.value = bg.name;
-                opt.innerText = bg.name;
-                selectAdd.appendChild(opt);
-            });
-            if (currentAddVal) selectAdd.value = currentAddVal;
-
-            // 2. Dropdown im Bestand (Filter) aktualisieren
-            const selectFilter = document.getElementById('filterBaugruppe');
-            const currentFilterVal = selectFilter.value;
-            
-            // Für den Filter kombinieren wir die offiziell angelegten Baugruppen 
-            // mit solchen, die eventuell noch in alten Materialien existieren.
-            const filterSet = new Set(baugruppenData.map(bg => bg.name));
-            items.forEach(item => {
-                if(item.baugruppe) filterSet.add(item.baugruppe);
-            });
-
-            selectFilter.innerHTML = '<option value="">Alle Baugruppen</option>';
-            Array.from(filterSet).sort().forEach(bg => {
-                const opt = document.createElement('option');
-                opt.value = bg;
-                opt.innerText = bg;
-                selectFilter.appendChild(opt);
-            });
-            
-            if (currentFilterVal) selectFilter.value = currentFilterVal;
-        }
-
-        function renderBaugruppenSetup() {
-            const container = document.getElementById('baugruppenListContainer');
-            container.innerHTML = '';
-            
-            if (baugruppenData.length === 0) {
-                container.innerHTML = '<div style="color: #64748b; font-size: 0.9rem; padding: 1rem; text-align: center; border: 1px dashed #cbd5e1; border-radius: 8px;">Noch keine Baugruppen angelegt.</div>';
-                return;
-            }
-
-            baugruppenData.forEach(bg => {
-                const div = document.createElement('div');
-                div.className = 'baugruppen-item';
-                div.innerHTML = `
-                    <span style="font-weight: 600; color: var(--primary);">${bg.name}</span>
-                    <button class="btn-delete" onclick="deleteBaugruppe('${bg.id}')">Löschen</button>
-                `;
-                container.appendChild(div);
+        function listenToData() {
+            const q = query(collection(db, "lagerbestand_" + cloudCode), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                items = [];
+                snapshot.forEach((doc) => {
+                    items.push({ id: doc.id, ...doc.data() });
+                });
+                renderList();
             });
         }
 
         window.renderList = function() {
-            if (!db) return;
-            
             const listEl = document.getElementById('inventoryList');
             const searchTxt = document.getElementById('searchInput').value.toLowerCase();
             const filterBg = document.getElementById('filterBaugruppe').value;
@@ -751,44 +566,121 @@
             listEl.innerHTML = '';
 
             const filtered = items.filter(item => {
-                const searchString = `${item.material} ${item.baugruppe} ${item.materialnummer}`.toLowerCase();
-                const matchSearch = searchString.includes(searchTxt);
+                const matchSearch = (item.material || '').toLowerCase().includes(searchTxt) || 
+                                    (item.baugruppe || '').toLowerCase().includes(searchTxt) ||
+                                    (item.materialnummer || '').toLowerCase().includes(searchTxt);
                 const matchFilter = filterBg === "" || item.baugruppe === filterBg;
                 return matchSearch && matchFilter;
             });
 
+            // Alphabetisch nach Materialnamen sortieren (ignoriert Groß-/Kleinschreibung und beachtet Umlaute)
+            filtered.sort((a, b) => (a.material || '').localeCompare(b.material || '', 'de', { sensitivity: 'base' }));
+
             if (filtered.length === 0) {
-                listEl.innerHTML = `
-                    <div style="text-align: center; padding: 3rem 1rem; color: #64748b; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
-                        Keine Materialien gefunden.
-                    </div>`;
+                listEl.innerHTML = '<p style="color:var(--text-muted);">Keine Bauteile gefunden.</p>';
                 return;
             }
 
             filtered.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item-card';
+                
+                let imgHtml = '';
+                if(item.bild) {
+                    imgHtml = `<img src="${item.bild}" class="item-image" style="display:block;">`;
+                }
+
                 div.innerHTML = `
-                    ${item.bild ? `<img src="${item.bild}" class="item-image" alt="${item.material}" loading="lazy">` : ''}
-                    <div class="item-header">
+                    ${imgHtml}
+                    <div class="item-content">
                         <div class="item-title">${item.material}</div>
-                        <div class="badge amount">${item.anzahl} Stk.</div>
+                        <div>
+                            <span class="badge badge-mat">Mat. Nr. ${item.materialnummer}</span>
+                            <span class="badge badge-bg">⚙️ ${item.baugruppe}</span>
+                            <span class="badge badge-amount">ben. ${item.anzahl} Stk.</span>
+                        </div>
+                        ${item.beschreibung ? `<div class="item-detail">${item.beschreibung}</div>` : ''}
+                        
+                        <div class="action-row">
+                            <button class="btn-edit" onclick="openEditModal('${item.id}')">Bearbeiten</button>
+                            <button class="btn-delete" onclick="deleteItem('${item.id}', this)">Löschen</button>
+                        </div>
                     </div>
-                    <div class="badges">
-                        <span class="badge"># ${item.materialnummer}</span>
-                        <span class="badge">⚙️ ${item.baugruppe}</span>
-                    </div>
-                    ${item.beschreibung ? `<div class="item-detail" style="margin-top:0.5rem; padding-top:0.5rem; border-top: 1px solid #f1f5f9;">${item.beschreibung}</div>` : ''}
                 `;
                 listEl.appendChild(div);
             });
         };
 
-        // Event Listener für Suche und Filter
+        window.deleteItem = function(id, btn) {
+            if (btn.dataset.confirm !== "true") {
+                btn.dataset.confirm = "true";
+                btn.innerText = "Sicher?";
+                btn.style.background = "var(--danger)";
+                btn.style.color = "white";
+                setTimeout(() => {
+                    btn.dataset.confirm = "false";
+                    btn.innerText = "Löschen";
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--danger)";
+                }, 3000);
+                return;
+            }
+            
+            // Im Hintergrund löschen
+            deleteDoc(doc(db, "lagerbestand_" + cloudCode, id)).catch(console.error);
+            showToast("Bauteil entfernt.");
+        };
+
+        window.openEditModal = function(id) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            
+            document.getElementById('editId').value = item.id;
+            document.getElementById('editMaterial').value = item.material || '';
+            document.getElementById('editMatNum').value = item.materialnummer || '';
+            document.getElementById('editBaugruppe').value = item.baugruppe || '';
+            document.getElementById('editAmount').value = item.anzahl || 0;
+            document.getElementById('editDesc').value = item.beschreibung || '';
+            
+            document.getElementById('editModal').style.display = 'flex';
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+        };
+
+        window.saveEdit = function() {
+            const id = document.getElementById('editId').value;
+            const material = document.getElementById('editMaterial').value.trim();
+            const matNum = document.getElementById('editMatNum').value.trim();
+            const baugruppe = document.getElementById('editBaugruppe').value;
+            const amount = document.getElementById('editAmount').value;
+            const desc = document.getElementById('editDesc').value.trim();
+
+            if (!material || !matNum || !baugruppe) {
+                showToast("Bitte Material, Materialnummer und Baugruppe ausfüllen", true);
+                return;
+            }
+
+            // Im Hintergrund aktualisieren
+            updateDoc(doc(db, "lagerbestand_" + cloudCode, id), {
+                material: material,
+                materialnummer: matNum,
+                baugruppe: baugruppe,
+                anzahl: amount === "" ? 0 : Number(amount),
+                beschreibung: desc
+            }).catch(console.error);
+            
+            closeEditModal();
+            showToast("Änderungen gespeichert!");
+        };
+
+        // Event Listener für Suche
         document.getElementById('searchInput').addEventListener('input', renderList);
         document.getElementById('filterBaugruppe').addEventListener('change', renderList);
 
         // App starten
+        initCodeLogic();
         initFirebase();
     </script>
 </body>
