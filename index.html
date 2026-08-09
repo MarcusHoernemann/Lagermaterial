@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📦 Materiallager</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a24">
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
         :root {
             --primary: #1a1a24;
@@ -678,6 +681,17 @@
         // Event Listener für Suche
         document.getElementById('searchInput').addEventListener('input', renderList);
         document.getElementById('filterBaugruppe').addEventListener('change', renderList);
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
 
         // App starten
         initCodeLogic();
