@@ -3,235 +3,793 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materialliste Browser-Viewer (Ruhrbahn Design)</title>
+    <title>Materiallager</title>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#00305d">
-    <link rel="icon" type="image/png" href="logo.png">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <style>
-        body {
-            /* Ruhrbahn Blau */
-            background-color: #00305d; 
+        :root {
+            --primary: #0f172a; /* Schiefergrau dunkel */
+            --secondary: #334155;
+            --accent: #3b82f6; /* Blau */
+            --bg: #f8fafc;
+            --text: #1e293b;
         }
-        .material-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            background-color: #ffffff;
-            border: 2px solid #e2e8f0;
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg); 
+            color: var(--text); 
+            -webkit-font-smoothing: antialiased;
         }
-        .material-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            border-color: #004b91;
+        header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 1.5rem 1rem; 
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
         }
-        ::-webkit-scrollbar-track {
-            background: #002548;
+        nav { 
+            display: flex; 
+            background: var(--secondary); 
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #004b91;
+        nav button { 
+            flex: 1; 
+            padding: 1rem; 
+            border: none; 
+            background: none; 
+            color: #cbd5e1; 
+            cursor: pointer; 
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        nav button:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+        nav button.active { 
+            background: var(--primary); 
+            color: white;
+            font-weight: 600; 
+            border-bottom: 3px solid var(--accent);
+        }
+        .container { 
+            padding: 1.5rem 1rem; 
+            max-width: 800px; 
+            margin: auto; 
+        }
+        .view { 
+            display: none; 
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .view.active { 
+            display: block; 
+        }
+        .card { 
+            background: white; 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+            margin-bottom: 1rem; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
+            border: 1px solid #e2e8f0;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 0.8rem 1rem; 
+            margin-bottom: 1rem; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 1rem; 
+            background-color: #f8fafc;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: white;
+        }
+        button.primary { 
+            width: 100%;
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600; 
+            font-size: 1rem;
+            cursor: pointer; 
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+        button.primary:hover { 
+            background: #2563eb; 
+        }
+        .item-card { 
+            background: white; 
+            padding: 1.2rem; 
+            border-radius: 12px; 
+            margin-bottom: 1rem; 
+            border-left: 5px solid var(--accent); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            border-top: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .item-title { 
+            font-weight: 700; 
+            font-size: 1.1rem; 
+            color: var(--primary);
+        }
+        .item-detail { 
+            font-size: 0.9rem; 
+            color: #64748b; 
+            line-height: 1.4;
+        }
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.2rem;
+        }
+        .badge { 
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9; 
+            color: #475569;
+            padding: 0.25rem 0.6rem; 
+            border-radius: 6px; 
+            font-size: 0.8rem; 
+            font-weight: 500;
+        }
+        .badge.amount {
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .search-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 600px) {
+            .search-area { grid-template-columns: 1fr; gap: 0; }
+        }
+        .image-upload-container {
+            margin-bottom: 1rem;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            background-color: #f8fafc;
+            transition: border-color 0.2s;
+        }
+        .image-upload-container:hover {
+            border-color: var(--accent);
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
             border-radius: 4px;
+            display: none;
+            margin: 0.5rem auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #005eb8;
+        .item-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background-color: #f1f5f9;
+        }
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background-color: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            font-size: 0.95rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.error {
+            background-color: #ef4444;
+        }
+        .toast.success {
+            background-color: #10b981;
+        }
+        .baugruppen-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-delete:hover {
+            background: #dc2626;
         }
     </style>
 </head>
-<body class="text-slate-900 min-h-screen p-4 md:p-8">
+<body>
+    <header>
+        <h1>📦 Materiallager</h1>
+    </header>
+    
+    <nav>
+        <button id="nav-list" class="active" onclick="switchView('list')">Bestand</button>
+        <button id="nav-add" onclick="switchView('add')">Neu erfassen</button>
+        <button id="nav-setup" onclick="switchView('setup')">Einstellungen</button>
+    </nav>
 
-    <div class="max-w-7xl mx-auto">
-        <div class="bg-slate-100 rounded-xl shadow-xl p-6 mb-8 border-b-4 border-yellow-400">
-            <div class="flex justify-between items-start mb-6">
-                <div class="flex items-center gap-4">
-                    <img src="logo.png" alt="Logo" class="w-12 h-12 object-contain">
-                    <div>
-                        <h1 class="text-2xl font-black text-[#00305d] uppercase tracking-tight">Material-Viewer</h1>
-                        <p id="file_status" class="text-slate-600 font-medium">Bereit zum Einlesen der <span class="font-mono text-blue-700">Material.xlsx</span></p>
-                    </div>
-                </div>
-                <button id="btn_reset" class="hidden text-xs bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors font-bold shadow-sm">
-                    Daten löschen
-                </button>
-            </div>
-            
-            <div class="flex flex-col md:flex-row gap-4 items-center">
-                <div class="w-full md:w-auto">
-                    <label for="input_file" class="block w-full text-center md:inline-block bg-[#00305d] text-white px-6 py-2 rounded-full font-bold hover:bg-[#004b91] cursor-pointer transition-colors shadow-md">
-                        Datei wählen
-                    </label>
-                    <input type="file" id="input_file" class="hidden" accept=".xlsx, .xls" />
-                </div>
-                
-                <input type="text" id="search_input" placeholder="Suchen..." class="hidden w-full md:w-64 px-4 py-2 bg-white border-2 border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#00305d] focus:outline-none placeholder-slate-400" />
-                
-                <select id="filter_baugruppe" class="hidden w-full md:w-64 px-4 py-2 bg-white border-2 border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#00305d] focus:outline-none">
+    <div class="container">
+        <!-- LAGERBESTAND VIEW -->
+        <div id="view-list" class="view active">
+            <div class="search-area">
+                <input type="text" id="searchInput" placeholder="Suche nach Material, Baugruppe...">
+                <select id="filterBaugruppe">
                     <option value="">Alle Baugruppen</option>
                 </select>
             </div>
-            
-            <div id="error_msg" class="mt-4 text-red-700 font-bold hidden"></div>
-        </div>
-
-        <div id="info_bar" class="mb-4 text-white px-2 hidden flex justify-between items-center font-bold">
-            <span id="item_count"></span>
-            <span id="storage_info" class="text-xs bg-yellow-400 text-[#00305d] px-2 py-1 rounded shadow-sm hidden">Daten aus Speicher geladen</span>
-        </div>
-
-        <div id="card_container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="inventoryList">
+                <div style="text-align: center; padding: 2rem; color: #64748b;">
+                    Daten werden geladen...
+                </div>
             </div>
+        </div>
+
+        <!-- HINZUFÜGEN VIEW -->
+        <div id="view-add" class="view">
+            <div class="card">
+                <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--primary);">Neues Material erfassen</h2>
+                
+                <input type="text" id="inputMaterial" placeholder="Material (z.B. M8 Schraube) *" required>
+                <input type="text" id="inputMatNum" placeholder="Materialnummer *" required>
+                <select id="inputBaugruppe" required>
+                    <option value="">Baugruppe wählen *</option>
+                </select>
+                <input type="number" id="inputAmount" placeholder="Benötigte / Vorhandene Anzahl *" required>
+                <textarea id="inputDesc" placeholder="Besonderheiten, Lagerort, Lieferant..." rows="3"></textarea>
+                
+                <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: block;">Bild (Optional)</label>
+                <div class="image-upload-container">
+                    <input type="file" id="inputImage" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
+                    <button class="primary" style="background: var(--secondary); margin-bottom: 0;" onclick="document.getElementById('inputImage').click()">
+                        📷 Foto aufnehmen / auswählen
+                    </button>
+                    <img id="imagePreview" class="image-preview" alt="Vorschau">
+                    <p id="imageStatus" style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; display: none;">Bild wird komprimiert...</p>
+                </div>
+                
+                <button class="primary" onclick="saveItem()">Bauteil speichern</button>
+            </div>
+        </div>
+
+        <!-- SETUP VIEW (ehemals Cloud) -->
+        <div id="view-setup" class="view">
+            <!-- CLOUD VERBINDUNG -->
+            <div class="card" style="border: 2px solid #e2e8f0; background: #f8fafc; margin-bottom: 1.5rem;">
+                <h2 style="margin-top: 0; color: var(--primary);">☁️ Cloud-Verbindung</h2>
+                
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem; border: 1px solid #cbd5e1; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                    <p style="margin: 0; font-size: 0.95rem; color: #64748b; font-weight: 500;">Dein aktueller Lager-Code:</p>
+                    <div style="font-size: 2.5rem; font-weight: 900; color: var(--accent); letter-spacing: 6px; margin: 0.5rem 0; font-family: monospace;" id="displayCurrentCode">------</div>
+                    <p style="margin: 0; font-size: 0.85rem; color: #64748b;">Gib diesen Code auf anderen Geräten ein, um sie mit diesem Lager zu verbinden.</p>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 1.5rem 0;">
+                
+                <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0.8rem; font-weight: 600;">Mit einem anderen Lager verbinden:</p>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0;">
+                    <input type="text" id="inputCloudCode" placeholder="Code eingeben" maxlength="6" style="margin-bottom: 0; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; text-align: center;">
+                    <button class="primary" style="width: auto; margin-bottom: 0; padding: 0.8rem 1.5rem;" onclick="saveCloudCode()">Wechseln</button>
+                </div>
+            </div>
+
+            <!-- BAUGRUPPEN VERWALTUNG -->
+            <div class="card" id="baugruppenBox" style="border: 2px solid #e2e8f0; background: #f8fafc;">
+                <h2 style="margin-top: 0; color: var(--primary);">Baugruppen verwalten</h2>
+                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem;">
+                    Lege hier Kategorien an, die beim Erfassen von neuem Material im Dropdown zur Verfügung stehen.
+                </p>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <input type="text" id="inputNewBaugruppe" placeholder="Neue Baugruppe (z.B. Elektrik)" style="margin-bottom: 0;">
+                    <button class="primary" style="width: auto; margin-bottom: 0; padding: 0.8rem 1.5rem;" onclick="addBaugruppe()">Anlegen</button>
+                </div>
+                <div id="baugruppenListContainer">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Container für Toast-Benachrichtigungen -->
+    <div id="toast-container"></div>
 
-    <script>
-        let allData = [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        window.onload = function() {
-            const cachedData = localStorage.getItem('materialData');
-            const cachedFileName = localStorage.getItem('materialFileName');
+        // Fest codierte Firebase Konfiguration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrfZ7suC_mFpQwCJgbZhBIPMX1j5Pn3j4",
+            authDomain: "ruhrbahnlager.firebaseapp.com",
+            projectId: "ruhrbahnlager",
+            storageBucket: "ruhrbahnlager.firebasestorage.app",
+            messagingSenderId: "395587497413",
+            appId: "1:395587497413:web:64f7841e2bf2b1b7cdafac",
+            measurementId: "G-F8KDDCRC1W"
+        };
+
+        let db = null;
+        let items = [];
+        let baugruppenData = [];
+        let currentBase64Image = null;
+        
+        // --- NEU: Automatische Code-Generierung ---
+        function generateRandomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        let cloudCode = localStorage.getItem('cloudCode');
+        if (!cloudCode) {
+            cloudCode = generateRandomCode();
+            localStorage.setItem('cloudCode', cloudCode);
+        }
+        // ------------------------------------------
+
+        let unsubLager = null;
+        let unsubBaugruppen = null;
+
+        // Custom Alert Funktion (ersetzt window.alert)
+        window.showToast = function(message, type = 'normal') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
             
-            if (cachedData) {
-                try {
-                    allData = JSON.parse(cachedData);
-                    initInterface();
-                    renderCards(allData);
-                    
-                    // Hier fixen wir die Anzeige beim Neustart
-                    if (cachedFileName) {
-                        document.getElementById('file_status').innerHTML = `Aktiv: <span class="font-mono text-blue-700">${cachedFileName}</span>`;
-                        document.getElementById('storage_info').classList.remove('hidden');
-                    }
-                } catch (e) {
-                    console.error("Fehler beim Laden des Speichers", e);
-                }
+            container.appendChild(toast);
+            
+            // Animation Trigger
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Entfernen nach 3 Sekunden
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // Tab-Navigation
+        window.switchView = function(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('nav-' + viewId).classList.add('active');
+            
+            if(viewId === 'list' && db && cloudCode.length === 6) renderList();
+            
+            // Code in den Einstellungen aktualisieren
+            if(viewId === 'setup') {
+                document.getElementById('displayCurrentCode').innerText = cloudCode;
             }
         };
 
-        function initInterface() {
-            document.getElementById('search_input').classList.remove('hidden');
-            document.getElementById('filter_baugruppe').classList.remove('hidden');
-            document.getElementById('info_bar').classList.remove('hidden');
-            document.getElementById('btn_reset').classList.remove('hidden');
-            populateBaugruppenFilter();
+        window.saveCloudCode = function() {
+            const code = document.getElementById('inputCloudCode').value.trim().toUpperCase();
+            if(code.length !== 6) {
+                showToast("Der Code muss exakt 6 Zeichen lang sein.", "error");
+                return;
+            }
+            localStorage.setItem('cloudCode', code);
+            cloudCode = code;
+            
+            // UI zurücksetzen
+            document.getElementById('displayCurrentCode').innerText = cloudCode;
+            document.getElementById('inputCloudCode').value = '';
+            
+            showToast("Mit neuem Lager verbunden! Daten werden synchronisiert.", "success");
+            
+            if (unsubLager) unsubLager();
+            if (unsubBaugruppen) unsubBaugruppen();
+            
+            listenToBaugruppen();
+            listenToData();
+            
+            setTimeout(() => switchView('list'), 1500);
+        };
+
+        function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                
+                // Da jetzt immer ein Code vorhanden ist, verbinden wir direkt
+                document.getElementById('displayCurrentCode').innerText = cloudCode;
+                listenToBaugruppen();
+                listenToData();
+                
+            } catch (e) {
+                console.error("Fehler bei der Firebase-Initialisierung:", e);
+                showToast("Konnte nicht mit der Datenbank verbinden.", "error");
+                document.getElementById('inventoryList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Datenbank-Verbindungsfehler!</div>';
+            }
         }
 
-        function populateBaugruppenFilter() {
-            const filterSelect = document.getElementById('filter_baugruppe');
-            filterSelect.innerHTML = '<option value="">Alle Baugruppen</option>';
-            const baugruppen = [...new Set(allData.map(row => row[3]).filter(bg => bg))].sort();
-            baugruppen.forEach(bg => {
-                const option = document.createElement('option');
-                option.value = bg;
-                option.textContent = bg;
-                filterSelect.appendChild(option);
+        function listenToBaugruppen() {
+            if (!db || cloudCode.length !== 6) return;
+            const q = query(collection(db, "baugruppen_" + cloudCode), orderBy("name"));
+            unsubBaugruppen = onSnapshot(q, (snapshot) => {
+                baugruppenData = [];
+                snapshot.forEach((docSnap) => {
+                    baugruppenData.push({ id: docSnap.id, name: docSnap.data().name });
+                });
+                renderBaugruppenSetup();
+                updateBaugruppenDropdowns();
+            }, (error) => {
+                console.error("Fehler beim Laden der Baugruppen:", error);
             });
         }
 
-        document.getElementById('btn_reset').addEventListener('click', function() {
-            if(confirm("Möchtest du die gespeicherten Daten wirklich löschen?")) {
-                localStorage.removeItem('materialData');
-                localStorage.removeItem('materialFileName');
-                location.reload();
+        window.addBaugruppe = async function() {
+            if (!db || cloudCode.length !== 6) {
+                showToast("Bitte zuerst Cloud-Code speichern.", "error");
+                return;
             }
-        });
+            const input = document.getElementById('inputNewBaugruppe');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast("Bitte einen Namen für die Baugruppe eingeben.", "error");
+                return;
+            }
 
-        document.getElementById('input_file').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const errorDiv = document.getElementById('error_msg');
-            errorDiv.classList.add('hidden');
+            try {
+                await addDoc(collection(db, "baugruppen_" + cloudCode), { name: name });
+                input.value = '';
+                showToast("Baugruppe angelegt!", "success");
+            } catch (e) {
+                showToast("Fehler beim Anlegen.", "error");
+            }
+        };
+
+        window.deleteBaugruppe = async function(id) {
+            if (!db || cloudCode.length !== 6) return;
+            
+            // Elegante Bestätigungs-Logik ohne window.confirm Popups
+            const btn = document.querySelector(`button[onclick="deleteBaugruppe('${id}')"]`);
+            if (btn && btn.innerText === "Löschen") {
+                btn.innerText = "Sicher?";
+                btn.style.background = "#b91c1c";
+                
+                // Setze nach 3 Sekunden zurück, falls nicht nochmal geklickt wurde
+                setTimeout(() => {
+                    if (btn && btn.innerText === "Sicher?") {
+                        btn.innerText = "Löschen";
+                        btn.style.background = ""; // Zurück zum Default der CSS Klasse
+                    }
+                }, 3000);
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, "baugruppen_" + cloudCode, id));
+                showToast("Baugruppe gelöscht!", "success");
+            } catch (e) {
+                showToast("Fehler beim Löschen der Baugruppe.", "error");
+            }
+        };
+
+        function listenToData() {
+            if (!db || cloudCode.length !== 6) return;
+            const q = query(collection(db, "lagerbestand_" + cloudCode), orderBy("materialnummer"));
+            
+            unsubLager = onSnapshot(q, (snapshot) => {
+                items = [];
+                
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    items.push({ id: docSnap.id, ...data });
+                });
+                
+                updateBaugruppenDropdowns();
+                renderList();
+            }, (error) => {
+                console.error("Firebase Fehler:", error);
+                document.getElementById('inventoryList').innerHTML = `
+                    <div class="card" style="text-align: center; color: #ef4444; border-color: #fecaca; background: #fef2f2;">
+                        <strong>Zugriffsfehler!</strong><br><br>
+                        Die Firebase-Datenbank verweigert den Zugriff.<br>
+                        Bitte prüfe die Firestore Security Rules (Regeln).
+                    </div>`;
+            });
+        }
+
+        window.handleImageSelection = function(event) {
+            const file = event.target.files[0];
             if (!file) return;
 
+            const preview = document.getElementById('imagePreview');
+            const status = document.getElementById('imageStatus');
+            
+            status.style.display = 'block';
+            status.innerText = "Bild wird verarbeitet...";
+            
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-                    
-                    if (rows.length < 2) {
-                        errorDiv.textContent = "Die Datei scheint leer zu sein.";
-                        errorDiv.classList.remove('hidden');
-                        return;
+                const img = new Image();
+                img.onload = function() {
+                    // Komprimierung mittels Canvas (Max Breite/Höhe: 600px)
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    const MAX_HEIGHT = 600;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
                     }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Konvertieren in WebP oder JPEG mit 70% Qualität (spart immens Platz)
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
                     
-                    allData = rows.slice(1).filter(row => row.length > 0);
+                    // Speichern im Speicher
+                    currentBase64Image = compressedDataUrl;
                     
-                    localStorage.setItem('materialData', JSON.stringify(allData));
-                    localStorage.setItem('materialFileName', file.name);
-                    
-                    document.getElementById('file_status').innerHTML = `Aktiv: <span class="font-mono text-blue-700">${file.name}</span>`;
-                    document.getElementById('storage_info').classList.add('hidden');
-                    
-                    initInterface();
-                    renderCards(allData);
-                } catch (err) {
-                    console.error(err);
-                    errorDiv.textContent = "Fehler: " + err.message;
-                    errorDiv.classList.remove('hidden');
-                }
+                    preview.src = compressedDataUrl;
+                    preview.style.display = 'block';
+                    status.innerText = "✅ Bild komprimiert und bereit.";
+                    status.style.color = "#10b981";
+                };
+                img.src = e.target.result;
             };
-            reader.readAsArrayBuffer(file);
-        });
+            reader.readAsDataURL(file);
+        };
 
-        function applyFilters() {
-            const searchTerm = document.getElementById('search_input').value.toLowerCase();
-            const selectedBG = document.getElementById('filter_baugruppe').value;
-            const filtered = allData.filter(row => {
-                const matchesSearch = row.some(cell => String(cell).toLowerCase().includes(searchTerm));
-                const matchesBG = selectedBG === "" || row[3] === selectedBG;
-                return matchesSearch && matchesBG;
-            });
-            renderCards(filtered);
-        }
+        window.saveItem = async function() {
+            if (!db) {
+                showToast("App ist nicht mit der Datenbank verbunden!", "error");
+                return;
+            }
+            if (cloudCode.length !== 6) {
+                showToast("Bitte zuerst Cloud-Code in den Einstellungen eingeben!", "error");
+                return;
+            }
+            
+            const material = document.getElementById('inputMaterial').value.trim();
+            const matNum = document.getElementById('inputMatNum').value.trim();
+            const desc = document.getElementById('inputDesc').value.trim();
+            const baugruppe = document.getElementById('inputBaugruppe').value.trim();
+            const amount = document.getElementById('inputAmount').value.trim();
 
-        document.getElementById('search_input').addEventListener('input', applyFilters);
-        document.getElementById('filter_baugruppe').addEventListener('change', applyFilters);
+            if (!material || !matNum || !baugruppe || amount === "") {
+                showToast("Bitte fülle alle Pflichtfelder (*) aus.", "error");
+                return;
+            }
 
-        function renderCards(rows) {
-            const container = document.getElementById('card_container');
-            const itemCount = document.getElementById('item_count');
-            container.innerHTML = '';
-            itemCount.textContent = `${rows.length} Materialien`;
+            const btn = document.querySelector('#view-add button');
+            const originalText = btn.innerText;
+            btn.innerText = "Wird gespeichert...";
+            btn.disabled = true;
 
-            rows.forEach(row => {
-                const bezeichnung = row[0] || '---';
-                const matNr = row[1] || '---';
-                const beschreibung = row[2] || 'Keine Beschreibung verfügbar';
-                const baugruppe = row[3] || '---';
+            try {
+                const docData = {
+                    material: material,
+                    materialnummer: matNum,
+                    beschreibung: desc,
+                    baugruppe: baugruppe,
+                    anzahl: Number(amount),
+                    erfasst_am: new Date().toISOString()
+                };
 
-                const card = document.createElement('div');
-                card.className = "material-card rounded-xl shadow-lg overflow-hidden flex flex-col p-5";
+                // Wenn ein Bild ausgewählt wurde, hängen wir es an
+                if (currentBase64Image) {
+                    docData.bild = currentBase64Image;
+                }
+
+                await addDoc(collection(db, "lagerbestand_" + cloudCode), docData);
                 
-                card.innerHTML = `
-                    <div class="flex justify-between items-center gap-4 mb-3">
-                        <div class="text-xl font-black text-[#00305d] truncate" title="${bezeichnung}">
-                            ${bezeichnung}
-                        </div>
-                        <div class="text-base font-mono font-black text-slate-800 bg-slate-300 px-3 py-1 rounded border border-slate-400 shadow-sm whitespace-nowrap">
-                            Mat: ${matNr}
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col gap-2 mb-4">
-                        <div class="text-xs font-bold text-slate-700 bg-yellow-400 px-3 py-1 rounded shadow-sm flex items-center justify-center">
-                            BG: ${baugruppe}
-                        </div>
-                    </div>
+                // Formular leeren
+                document.getElementById('inputMaterial').value = '';
+                document.getElementById('inputMatNum').value = '';
+                document.getElementById('inputDesc').value = '';
+                document.getElementById('inputBaugruppe').value = '';
+                document.getElementById('inputAmount').value = '';
+                
+                // Bild Vorschau zurücksetzen
+                document.getElementById('inputImage').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('imageStatus').style.display = 'none';
+                currentBase64Image = null;
+                
+                showToast("✅ Bauteil erfolgreich gespeichert!", "success");
+                
+                setTimeout(() => switchView('list'), 1500);
+                
+            } catch (e) {
+                console.error(e);
+                showToast("Fehler beim Speichern in die Datenbank!", "error");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        };
 
-                    <div class="text-slate-700 text-sm font-medium italic line-clamp-3">
-                        ${beschreibung}
-                    </div>
+        function updateBaugruppenDropdowns() {
+            // 1. Dropdown in "Neu erfassen" aktualisieren
+            const selectAdd = document.getElementById('inputBaugruppe');
+            const currentAddVal = selectAdd.value;
+            
+            selectAdd.innerHTML = '<option value="">Baugruppe wählen *</option>';
+            baugruppenData.forEach(bg => {
+                const opt = document.createElement('option');
+                opt.value = bg.name;
+                opt.innerText = bg.name;
+                selectAdd.appendChild(opt);
+            });
+            if (currentAddVal) selectAdd.value = currentAddVal;
+
+            // 2. Dropdown im Bestand (Filter) aktualisieren
+            const selectFilter = document.getElementById('filterBaugruppe');
+            const currentFilterVal = selectFilter.value;
+            
+            // Für den Filter kombinieren wir die offiziell angelegten Baugruppen 
+            // mit solchen, die eventuell noch in alten Materialien existieren.
+            const filterSet = new Set(baugruppenData.map(bg => bg.name));
+            items.forEach(item => {
+                if(item.baugruppe) filterSet.add(item.baugruppe);
+            });
+
+            selectFilter.innerHTML = '<option value="">Alle Baugruppen</option>';
+            Array.from(filterSet).sort().forEach(bg => {
+                const opt = document.createElement('option');
+                opt.value = bg;
+                opt.innerText = bg;
+                selectFilter.appendChild(opt);
+            });
+            
+            if (currentFilterVal) selectFilter.value = currentFilterVal;
+        }
+
+        function renderBaugruppenSetup() {
+            const container = document.getElementById('baugruppenListContainer');
+            container.innerHTML = '';
+            
+            if (baugruppenData.length === 0) {
+                container.innerHTML = '<div style="color: #64748b; font-size: 0.9rem; padding: 1rem; text-align: center; border: 1px dashed #cbd5e1; border-radius: 8px;">Noch keine Baugruppen angelegt.</div>';
+                return;
+            }
+
+            baugruppenData.forEach(bg => {
+                const div = document.createElement('div');
+                div.className = 'baugruppen-item';
+                div.innerHTML = `
+                    <span style="font-weight: 600; color: var(--primary);">${bg.name}</span>
+                    <button class="btn-delete" onclick="deleteBaugruppe('${bg.id}')">Löschen</button>
                 `;
-                container.appendChild(card);
+                container.appendChild(div);
             });
         }
+
+        window.renderList = function() {
+            if (!db) return;
+            
+            const listEl = document.getElementById('inventoryList');
+            const searchTxt = document.getElementById('searchInput').value.toLowerCase();
+            const filterBg = document.getElementById('filterBaugruppe').value;
+
+            listEl.innerHTML = '';
+
+            const filtered = items.filter(item => {
+                const searchString = `${item.material} ${item.baugruppe} ${item.materialnummer}`.toLowerCase();
+                const matchSearch = searchString.includes(searchTxt);
+                const matchFilter = filterBg === "" || item.baugruppe === filterBg;
+                return matchSearch && matchFilter;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: #64748b; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                        Keine Materialien gefunden.
+                    </div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item-card';
+                div.innerHTML = `
+                    ${item.bild ? `<img src="${item.bild}" class="item-image" alt="${item.material}" loading="lazy">` : ''}
+                    <div class="item-header">
+                        <div class="item-title">${item.material}</div>
+                        <div class="badge amount">${item.anzahl} Stk.</div>
+                    </div>
+                    <div class="badges">
+                        <span class="badge"># ${item.materialnummer}</span>
+                        <span class="badge">⚙️ ${item.baugruppe}</span>
+                    </div>
+                    ${item.beschreibung ? `<div class="item-detail" style="margin-top:0.5rem; padding-top:0.5rem; border-top: 1px solid #f1f5f9;">${item.beschreibung}</div>` : ''}
+                `;
+                listEl.appendChild(div);
+            });
+        };
+
+        // Event Listener für Suche und Filter
+        document.getElementById('searchInput').addEventListener('input', renderList);
+        document.getElementById('filterBaugruppe').addEventListener('change', renderList);
+
+        // App starten
+        initFirebase();
     </script>
 </body>
 </html>
