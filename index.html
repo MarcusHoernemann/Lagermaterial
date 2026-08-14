@@ -105,11 +105,20 @@
             display: flex;
             flex-direction: column;
         }
-        .item-image {
+        .item-image-container {
             width: 100%;
-            height: 150px;
-            object-fit: cover;
-            background: var(--primary);
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .item-image {
+            width: auto;
+            height: auto;
+            max-width: min(100%, 500px);
+            max-height: min(500px, 60vh);
+            object-fit: contain;
             display: none;
         }
         .item-content { padding: 1rem; }
@@ -147,10 +156,15 @@
         }
 
         .image-preview {
-            max-width: 100%;
+            max-width: min(100%, 500px);
+            max-height: min(500px, 60vh);
+            object-fit: contain;
             border-radius: 4px;
             margin-bottom: 1rem;
             display: none;
+            background: #000;
+            margin-left: auto;
+            margin-right: auto;
         }
         .action-row {
             display: flex;
@@ -174,16 +188,18 @@
             background: rgba(0,0,0,0.8);
             display: none; justify-content: center; align-items: center;
             z-index: 1000; padding: 1rem;
+            overflow-y: auto;
         }
         .modal {
             background: var(--secondary);
             padding: 1.5rem;
             border-radius: 8px;
-            width: 100%; max-width: 400px;
+            width: 100%; max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
             border: 1px solid var(--border);
         }
         
-        /* Setup Code Styling */
         .code-display {
             font-size: 2rem;
             letter-spacing: 0.5rem;
@@ -196,7 +212,6 @@
             margin-bottom: 1rem;
         }
         
-        /* Toast Notification */
         .toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: var(--accent); color: white; padding: 0.8rem 1.5rem;
@@ -244,7 +259,7 @@
                 <input type="number" id="inputAmount" placeholder="Benötigte Anzahl (Optional)">
                 
                 <div class="card" style="background: var(--primary); padding: 0.5rem; margin-bottom: 1rem;">
-                    <input type="file" id="inputImage" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
+                    <input type="file" id="inputImage" accept="image/*" style="display: none;" onchange="handleImageSelection(event, false)">
                     <button class="primary" style="background: var(--border); margin-bottom: 0.5rem;" onclick="document.getElementById('inputImage').click()">
                         📷 Foto aufnehmen / auswählen
                     </button>
@@ -292,6 +307,15 @@
             <input type="number" id="editAmount" placeholder="Anzahl">
             <textarea id="editDesc" placeholder="Beschreibung" rows="2"></textarea>
             
+            <div class="card" style="background: var(--primary); padding: 0.5rem; margin-bottom: 1rem;">
+                <input type="file" id="editInputImage" accept="image/*" style="display: none;" onchange="handleImageSelection(event, true)">
+                <button class="primary" style="background: var(--border); margin-bottom: 0.5rem;" onclick="document.getElementById('editInputImage').click()">
+                    📷 Bild hinzufügen / ändern
+                </button>
+                <img id="editImagePreview" class="image-preview" alt="Vorschau">
+                <p id="editImageStatus" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; display: none;">Bild wird verarbeitet...</p>
+            </div>
+            
             <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                 <button onclick="closeEditModal()" style="background: var(--border);">Abbrechen</button>
                 <button class="primary" onclick="saveEdit()">Speichern</button>
@@ -305,7 +329,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Config (Ruhrbahnlager)
         const firebaseConfig = {
             apiKey: "AIzaSyBrfZ7suC_mFpQwCJgbZhBIPMX1j5Pn3j4",
             authDomain: "ruhrbahnlager.firebaseapp.com",
@@ -320,6 +343,7 @@
         let items = [];
         let baugruppen = [];
         let currentBase64Image = null;
+        let editBase64Image = null;
         let cloudCode = "";
 
         window.switchView = function(viewId) {
@@ -337,11 +361,9 @@
             setTimeout(() => { t.style.display = "none"; }, 3000);
         }
 
-        // Setup Cloud Code Logic
         function initCodeLogic() {
             cloudCode = localStorage.getItem('lagerCloudCode');
             if (!cloudCode) {
-                // Generate a random 6 character code if none exists
                 cloudCode = Math.random().toString(36).substring(2, 8).toUpperCase();
                 localStorage.setItem('lagerCloudCode', cloudCode);
             }
@@ -371,7 +393,6 @@
             }
         }
 
-        // Baugruppen Logik
         function listenToBaugruppen() {
             const q = query(collection(db, "baugruppen_" + cloudCode), orderBy("name"));
             onSnapshot(q, (snapshot) => {
@@ -387,10 +408,7 @@
         window.addBaugruppe = function() {
             const val = document.getElementById('inputNewBaugruppe').value.trim();
             if (!val) return;
-            
-            // Im Hintergrund speichern
             addDoc(collection(db, "baugruppen_" + cloudCode), { name: val }).catch(console.error);
-            
             document.getElementById('inputNewBaugruppe').value = '';
             showToast("Baugruppe hinzugefügt");
         };
@@ -409,8 +427,6 @@
                 }, 3000);
                 return;
             }
-            
-            // Im Hintergrund löschen
             deleteDoc(doc(db, "baugruppen_" + cloudCode, id)).catch(console.error);
             showToast("Gelöscht!");
         };
@@ -450,12 +466,12 @@
             selectFilter.value = currentFilter;
         }
 
-        window.handleImageSelection = function(event) {
+        window.handleImageSelection = function(event, isEdit = false) {
             const file = event.target.files[0];
             if (!file) return;
 
-            const preview = document.getElementById('imagePreview');
-            const status = document.getElementById('imageStatus');
+            const preview = document.getElementById(isEdit ? 'editImagePreview' : 'imagePreview');
+            const status = document.getElementById(isEdit ? 'editImageStatus' : 'imageStatus');
             
             status.style.display = 'block';
             status.innerText = "Bild wird optimiert...";
@@ -468,7 +484,7 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const MAX_SIZE = 600;
+                    const MAX_SIZE = 1200; // Erhöht für schärfere Darstellung ohne Qualitätsverlust
 
                     if (width > height && width > MAX_SIZE) {
                         height *= MAX_SIZE / width;
@@ -483,8 +499,13 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
-                    currentBase64Image = compressedDataUrl;
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    
+                    if (isEdit) {
+                        editBase64Image = compressedDataUrl;
+                    } else {
+                        currentBase64Image = compressedDataUrl;
+                    }
                     
                     preview.src = compressedDataUrl;
                     preview.style.display = 'block';
@@ -525,19 +546,16 @@
                 docData.bild = currentBase64Image;
             }
 
-            // Fire-and-Forget: Im Hintergrund hochladen, UI wird NICHT blockiert!
             addDoc(collection(db, "lagerbestand_" + cloudCode), docData).catch(e => {
                 console.error("Speicherfehler:", e);
             });
             
-            // Formular SOFORT leeren
             document.getElementById('inputMaterial').value = '';
             document.getElementById('inputMatNum').value = '';
             document.getElementById('inputDesc').value = '';
             document.getElementById('inputBaugruppe').value = '';
             document.getElementById('inputAmount').value = '';
             
-            // Bild zurücksetzen
             document.getElementById('inputImage').value = '';
             document.getElementById('imagePreview').style.display = 'none';
             document.getElementById('imageStatus').style.display = 'none';
@@ -545,7 +563,6 @@
             
             showToast("Bauteil gespeichert!");
             
-            // Button SOFORT wieder freigeben
             btn.innerText = "Bauteil speichern";
             btn.disabled = false;
         };
@@ -576,7 +593,6 @@
                 return matchSearch && matchFilter;
             });
 
-            // Alphabetisch nach Materialnamen sortieren (ignoriert Groß-/Kleinschreibung und beachtet Umlaute)
             filtered.sort((a, b) => (a.material || '').localeCompare(b.material || '', 'de', { sensitivity: 'base' }));
 
             if (filtered.length === 0) {
@@ -590,7 +606,11 @@
                 
                 let imgHtml = '';
                 if(item.bild) {
-                    imgHtml = `<img src="${item.bild}" class="item-image" style="display:block;">`;
+                    imgHtml = `
+                        <div class="item-image-container">
+                            <img src="${item.bild}" class="item-image" style="display:block;" alt="${item.material}">
+                        </div>
+                    `;
                 }
 
                 div.innerHTML = `
@@ -628,8 +648,6 @@
                 }, 3000);
                 return;
             }
-            
-            // Im Hintergrund löschen
             deleteDoc(doc(db, "lagerbestand_" + cloudCode, id)).catch(console.error);
             showToast("Bauteil entfernt.");
         };
@@ -645,11 +663,27 @@
             document.getElementById('editAmount').value = item.anzahl || 0;
             document.getElementById('editDesc').value = item.beschreibung || '';
             
+            // Bild-Vorschau im Edit Modal zurücksetzen bzw. setzen falls vorhanden
+            editBase64Image = null;
+            const editPreview = document.getElementById('editImagePreview');
+            const editStatus = document.getElementById('editImageStatus');
+            document.getElementById('editInputImage').value = '';
+            
+            if (item.bild) {
+                editPreview.src = item.bild;
+                editPreview.style.display = 'block';
+                editStatus.style.display = 'none';
+            } else {
+                editPreview.style.display = 'none';
+                editStatus.style.display = 'none';
+            }
+            
             document.getElementById('editModal').style.display = 'flex';
         };
 
         window.closeEditModal = function() {
             document.getElementById('editModal').style.display = 'none';
+            editBase64Image = null;
         };
 
         window.saveEdit = function() {
@@ -665,35 +699,36 @@
                 return;
             }
 
-            // Im Hintergrund aktualisieren
-            updateDoc(doc(db, "lagerbestand_" + cloudCode, id), {
+            const updateData = {
                 material: material,
                 materialnummer: matNum,
                 baugruppe: baugruppe,
                 anzahl: amount === "" ? 0 : Number(amount),
                 beschreibung: desc
-            }).catch(console.error);
+            };
+
+            // Wenn ein neues Bild im Edit-Modus ausgewählt wurde, dieses ebenfalls speichern
+            if (editBase64Image) {
+                updateData.bild = editBase64Image;
+            }
+
+            updateDoc(doc(db, "lagerbestand_" + cloudCode, id), updateData).catch(console.error);
             
             closeEditModal();
             showToast("Änderungen gespeichert!");
         };
 
-        // Event Listener für Suche
         document.getElementById('searchInput').addEventListener('input', renderList);
         document.getElementById('filterBaugruppe').addEventListener('change', renderList);
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }, err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                navigator.serviceWorker.register('sw.js').catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
             });
         }
 
-        // App starten
         initCodeLogic();
         initFirebase();
     </script>
